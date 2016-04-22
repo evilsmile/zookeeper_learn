@@ -1,3 +1,8 @@
+import java.util.List;
+import java.util.Random;
+import java.nio.ByteBuffer;
+import java.io.IOException;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -6,38 +11,60 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
-import java.util.List;
+class SyncPrimitive implements Watcher {
+	static ZooKeeper zk = null;
+	static Integer mutex;
+	//static Integer mutex;
 
-public class Barrier implements Watcher {
-	private static final String addr = "192.168.21.241:2181,192.168.21.241:2182,192.168.21.241:2183";
-	private ZooKeeper zk = null;
-	private Integer mutex;
-	private int size = 0;
-	private String root;
+	protected String root;
 
-	public Barrier(String root, int size) {
-		this.root = root;
-		this.size = size;
-
-		try {
-			zk = new ZooKeeper(addr, 10 * 1000, this);
-			mutex = new Integer(-1);
-			Stat s = zk.exists(root, false);
-			if (s == null) {
-				zk.create(root, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+	SyncPrimitive(String addr) {
+		if (zk == null) {
+			System.out.println("Starting ZK:");
+			try {
+				zk = new ZooKeeper(addr, 3000, this);
+				mutex = new Integer(-1);
+				System.out.println("Finished starting ZK: " + zk);
+			} catch (IOException e) {
+				System.out.println(e.toString());
+				zk = null;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
-
 	public synchronized void process(WatchedEvent event) {
+		System.out.println(event.toString());
 		synchronized(mutex) {
 			mutex.notify();
 		}
 	}
+}
 
-	public boolean enter(String name) throws Exception {
+public class Barrier extends SyncPrimitive {
+	private int size = 0;
+
+	private String name;
+
+	public Barrier(String addr, String root, int size) {
+		super(addr);
+		this.root = root;
+		this.size = size;
+
+		if (zk != null) {
+			try {
+				Stat s = zk.exists(root, false);
+				if (s == null) {
+					zk.create(root, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+				}
+			} catch (KeeperException e) {
+				System.out.println("Keeper exception when instantiating queue: " + e.toString());
+			} catch (InterruptedException e){
+				System.out.println("Interrupted exception");
+				e.printStackTrace();
+			} 
+		}
+	}
+
+	public boolean enter(String name) throws KeeperException, InterruptedException {
 		zk.create(root + "/" + name, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 		while (true) {
 			synchronized (mutex) {
@@ -51,14 +78,16 @@ public class Barrier implements Watcher {
 		}
 	}
 
-	public boolean leave(String name) throws Exception {
+	public boolean leave(String name) throws KeeperException, InterruptedException{
 		zk.delete(root + "/" + name, 0);
 		while(true) {
 			synchronized (mutex) {
 				List<String> list = zk.getChildren(root, true);
+				System.out.println(name + " get lock. now size: " + list.size());
 				if (list.size() > 0) {
 					mutex.wait();
 				} else {
+					mutex.notify();
 					return true;
 				}
 			}
