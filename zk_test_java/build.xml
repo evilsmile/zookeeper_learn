@@ -4,8 +4,10 @@
 	<property environment="env"/>
 
 	<property name="simple_test" value="SimpleTest"/>
+	<property name="barrier_test" value="Barrier/"/>
 
-	<property name="exe_name" value="${simple_test}"/>
+	<property name="exe_name" value="${barrier_test}"/>
+	<!--property name="exe_name" value="${simple_test}"/-->
 
 	<property name="src.dir" value="${basedir}/${exe_name}/src"/>
 	<property name="lib.dir" value="${basedir}/${exe_name}/lib"/>
@@ -14,6 +16,7 @@
 	<property name="lib.common.dir" value="${basedir}/lib"/>
 	<property name="java.lib.dir" value="${env.JAVA_HOME}/lib"/>
 
+	<property name="log4j.config" value="log4j.properties"/>
 
 	<!--                   -->
 	<target name="init">
@@ -23,6 +26,7 @@
 		<copy todir="${lib.dir}">
 			<fileset dir="${lib.common.dir}"/>
 		</copy>
+		<copy file="${log4j.config}" tofile="${classes.dir}/${log4j.config}"/>
 		<echo level="info">Create standard dir done.</echo>
 	</target>
 
@@ -33,8 +37,19 @@
 	</target>
 
 	<target name="run" depends="compile,init">
-		<antcall target="run-simpletest"/>
+		<antcall target="run-barriertest"/>
+		<!--antcall target="run-simpletest"/-->
 	</target>
+
+	<target name="run-barriertest">
+		<java classname="BarrierTest" fork="true" dir=".">
+			<classpath refid="classpath"/>
+			<classpath>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+		</java>
+	</target>
+
 
 	<target name="run-simpletest">
 		<java classname="ZooKeeperOperator" fork="true" dir=".">

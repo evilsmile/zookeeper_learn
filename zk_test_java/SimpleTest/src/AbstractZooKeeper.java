@@ -22,6 +22,7 @@ public class AbstractZooKeeper implements Watcher {
 
 	@Override
 	public void process(WatchedEvent event) {
+		log.info("Received event: " + event.toString());
 		if (event.getState() == KeeperState.SyncConnected) {
 			countDownLatch.countDown();
 		}
@@ -30,5 +31,4 @@ public class AbstractZooKeeper implements Watcher {
 	public void close() throws InterruptedException {
 		zooKeeper.close();
 	}
-
 }
