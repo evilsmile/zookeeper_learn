@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+
+<project name="zk_java_test" default="run">
+	<property environment="env"/>
+
+	<property name="simple_test" value="SimpleTest"/>
+
+	<property name="exe_name" value="${simple_test}"/>
+
+	<property name="src.dir" value="${basedir}/${exe_name}/src"/>
+	<property name="lib.dir" value="${basedir}/${exe_name}/lib"/>
+	<property name="classes.dir" value="${basedir}/${exe_name}/classes"/>
+
+	<property name="lib.common.dir" value="${basedir}/lib"/>
+	<property name="java.lib.dir" value="${env.JAVA_HOME}/lib"/>
+
+
+	<!--                   -->
+	<target name="init">
+		<mkdir dir="${src.dir}"/>
+		<mkdir dir="${classes.dir}"/>
+		<mkdir dir="${lib.dir}"/>
+		<copy todir="${lib.dir}">
+			<fileset dir="${lib.common.dir}"/>
+		</copy>
+		<echo level="info">Create standard dir done.</echo>
+	</target>
+
+	<target name="compile" depends="init">
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" includes="*java" debug="on">
+			<classpath refid="classpath"/>
+		</javac>
+	</target>
+
+	<target name="run" depends="compile,init">
+		<antcall target="run-simpletest"/>
+	</target>
+
+	<target name="run-simpletest">
+		<java classname="ZooKeeperOperator" fork="true" dir=".">
+			<classpath refid="classpath"/>
+			<classpath>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+		</java>
+	</target>
+
+	<path id="classpath">
+		<fileset dir="${java.lib.dir}">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${lib.dir}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<target name="clean">
+		<delete >
+			<fileset dir="${classes.dir}" includes="**/*.class"/>
+		</delete>
+	</target>
+
+</project>
