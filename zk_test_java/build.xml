@@ -6,8 +6,10 @@
 	<property name="simple_test" value="SimpleTest"/>
 	<property name="barrier_test" value="Barrier/"/>
 	<property name="queue_test" value="Queue/"/>
+	<property name="executor" value="Executor/"/>
 
-	<property name="exe_name" value="${queue_test}"/>
+	<property name="exe_name" value="${executor}"/>
+	<!--property name="exe_name" value="${queue_test}"/-->
 	<!--property name="exe_name" value="${barrier_test}"/-->
 	<!--property name="exe_name" value="${simple_test}"/-->
 
@@ -20,7 +22,63 @@
 
 	<property name="log4j.config" value="log4j.properties"/>
 
-	<!--                   -->
+	<!-- RUN target, and real running target list -->
+	<target name="run" depends="compile,init">
+		<antcall target="run-executor"/>
+		<!--antcall target="run-queuetest"/-->
+		<!--antcall target="run-barriertest"/-->
+		<!--antcall target="run-simpletest"/-->
+	</target>
+
+	<!-- barrier -->
+	<target name="run-executor">
+		<java classname="Executor" fork="true" dir=".">
+			<classpath refid="classpath"/>
+			<classpath>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+		</java>
+	</target>
+
+	<!-- barrier -->
+	<target name="run-barriertest">
+		<java classname="BarrierTest" fork="true" dir=".">
+			<classpath refid="classpath"/>
+			<classpath>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+		</java>
+	</target>
+
+	<!-- queue -->
+	<target name="run-queuetest">
+		<java classname="QueueTest" fork="true" dir=".">
+			<classpath refid="classpath"/>
+			<classpath>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+			<arg line="c"/>
+		</java>
+		<java classname="QueueTest" fork="true" dir=".">
+			<classpath refid="classpath"/>
+			<classpath>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+			<arg line="p"/>
+		</java>
+	</target>
+
+	<!-- simple test -->
+	<target name="run-simpletest">
+		<java classname="ZooKeeperOperator" fork="true" dir=".">
+			<classpath refid="classpath"/>
+			<classpath>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+		</java>
+	</target>
+
+	<!--  run depends targets  -->
 	<target name="init">
 		<mkdir dir="${src.dir}"/>
 		<mkdir dir="${classes.dir}"/>
@@ -38,47 +96,7 @@
 		</javac>
 	</target>
 
-	<target name="run" depends="compile,init">
-		<antcall target="run-queuetest"/>
-		<!--antcall target="run-barriertest"/-->
-		<!--antcall target="run-simpletest"/-->
-	</target>
-
-	<target name="run-barriertest">
-		<java classname="BarrierTest" fork="true" dir=".">
-			<classpath refid="classpath"/>
-			<classpath>
-				<pathelement path="${classes.dir}"/>
-			</classpath>
-		</java>
-	</target>
-
-	<target name="run-queuetest">
-		<java classname="QueueTest" fork="true" dir=".">
-			<classpath refid="classpath"/>
-			<classpath>
-				<pathelement path="${classes.dir}"/>
-			</classpath>
-			<arg line="p"/>
-		</java>
-		<java classname="QueueTest" fork="true" dir=".">
-			<classpath refid="classpath"/>
-			<classpath>
-				<pathelement path="${classes.dir}"/>
-			</classpath>
-			<arg line="c"/>
-		</java>
-	</target>
-
-	<target name="run-simpletest">
-		<java classname="ZooKeeperOperator" fork="true" dir=".">
-			<classpath refid="classpath"/>
-			<classpath>
-				<pathelement path="${classes.dir}"/>
-			</classpath>
-		</java>
-	</target>
-
+	<!-- run enviroment set -->
 	<path id="classpath">
 		<fileset dir="${java.lib.dir}">
 			<include name="*.jar"/>
