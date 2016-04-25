@@ -5,8 +5,10 @@
 
 	<property name="simple_test" value="SimpleTest"/>
 	<property name="barrier_test" value="Barrier/"/>
+	<property name="queue_test" value="Queue/"/>
 
-	<property name="exe_name" value="${barrier_test}"/>
+	<property name="exe_name" value="${queue_test}"/>
+	<!--property name="exe_name" value="${barrier_test}"/-->
 	<!--property name="exe_name" value="${simple_test}"/-->
 
 	<property name="src.dir" value="${basedir}/${exe_name}/src"/>
@@ -37,7 +39,8 @@
 	</target>
 
 	<target name="run" depends="compile,init">
-		<antcall target="run-barriertest"/>
+		<antcall target="run-queuetest"/>
+		<!--antcall target="run-barriertest"/-->
 		<!--antcall target="run-simpletest"/-->
 	</target>
 
@@ -50,6 +53,22 @@
 		</java>
 	</target>
 
+	<target name="run-queuetest">
+		<java classname="QueueTest" fork="true" dir=".">
+			<classpath refid="classpath"/>
+			<classpath>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+			<arg line="p"/>
+		</java>
+		<java classname="QueueTest" fork="true" dir=".">
+			<classpath refid="classpath"/>
+			<classpath>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+			<arg line="c"/>
+		</java>
+	</target>
 
 	<target name="run-simpletest">
 		<java classname="ZooKeeperOperator" fork="true" dir=".">
