@@ -22,6 +22,7 @@ public class DataMonitor implements Watcher, StatCallback {
 		this.zk = zk;
 		this.znode = znode;
 		this.chainedWatcher = chainedWatcher;
+		this.listener = listener;
 		zk.exists(znode, true, this, null);
 	}
 
