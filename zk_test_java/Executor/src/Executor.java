@@ -29,7 +29,7 @@ public class Executor implements Watcher, Runnable, DataMonitor.DataMonitorListe
 	public static void main(String[] args) {
 		String znode = "/test_node";
 		String filename = "output";
-		String exec[] = {"ls", "/app1"};
+		String exec[] = {"ls", "/home"};
 
 		try {
 			new Executor(znode, filename, exec).run();

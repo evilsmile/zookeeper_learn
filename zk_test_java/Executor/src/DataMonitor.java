@@ -33,6 +33,7 @@ public class DataMonitor implements Watcher, StatCallback {
 
 	public void process (WatchedEvent event) {
 		String path = event.getPath();
+		System.out.println("Wath: " + event);
 		if (event.getType() == Event.EventType.None) {
 			switch(event.getState()) {
 				case SyncConnected:
@@ -61,7 +62,7 @@ public class DataMonitor implements Watcher, StatCallback {
 				break;
 			case Code.NoNode:
 				System.out.println("Code.NoNode");
-				exists = true;
+				exists = false;
 				break;
 			case Code.SessionExpired:
 			case Code.NoAuth:
