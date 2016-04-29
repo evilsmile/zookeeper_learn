@@ -7,6 +7,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.Stat;
+import org.apache.zookeeper.CreateMode;
 
 public class ZooKeeperOperator extends AbstractZooKeeper {
 	private static Log log = LogFactory.getLog(AbstractZooKeeper.class.getName());
@@ -59,6 +60,8 @@ public class ZooKeeperOperator extends AbstractZooKeeper {
 		try {
 			ZooKeeperOperator zkOperator = new ZooKeeperOperator();
 			zkOperator.connect("192.168.21.241:2181,192.168.21.241:2182,192.168.21.241:2183");
+
+			zkOperator.findLeader(zkOperator);
 
 			String zkTest = "ZooKeeper Java API test";
 			zkOperator.create("/hello/child3", zkTest.getBytes());

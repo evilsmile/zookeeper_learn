@@ -8,10 +8,10 @@
 	<property name="queue_test" value="Queue/"/>
 	<property name="executor" value="Executor/"/>
 
-	<property name="exe_name" value="${executor}"/>
+	<!--property name="exe_name" value="${executor}"/-->
 	<!--property name="exe_name" value="${queue_test}"/-->
 	<!--property name="exe_name" value="${barrier_test}"/-->
-	<!--property name="exe_name" value="${simple_test}"/-->
+	<property name="exe_name" value="${simple_test}"/>
 
 	<property name="src.dir" value="${basedir}/${exe_name}/src"/>
 	<property name="lib.dir" value="${basedir}/${exe_name}/lib"/>
@@ -24,10 +24,10 @@
 
 	<!-- RUN target, and real running target list -->
 	<target name="run" depends="compile,init">
-		<antcall target="run-executor"/>
+		<!--antcall target="run-executor"/-->
 		<!--antcall target="run-queuetest"/-->
 		<!--antcall target="run-barriertest"/-->
-		<!--antcall target="run-simpletest"/-->
+		<antcall target="run-simpletest"/>
 	</target>
 
 	<!-- barrier -->
