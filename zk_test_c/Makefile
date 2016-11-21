@@ -1,2 +1,8 @@
+CC=gcc
+CFLAGS=-g
+
 zk_test:zk_test.c
-	$(CC) -g -o $@ $< -I/usr/local/include/zookeeper -lzookeeper_mt
+	$(CC) $(CFLAGS) -o $@ $< -lzookeeper_mt
+
+clean:
+	rm -f zk_test
