@@ -1,8 +1,11 @@
 CC=gcc
 CFLAGS=-g
 
-zk_test:zk_test.c
-	$(CC) $(CFLAGS) -o $@ $< -lzookeeper_mt
+zk_test:logger.o zk_test.o 
+	$(CC) $(CFLAGS) -o $@ $^ -lzookeeper_mt
+
+%.o:%.c
+	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f zk_test
+	rm -f zk_test *.o

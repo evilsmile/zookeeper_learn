@@ -6,28 +6,13 @@
 #include <stdarg.h>
 #include <zookeeper/zookeeper.h>
 
+#include "logger.h"
+
 #define BUF_SIZ 512
-
-static zhandle_t *zh;
-
-void log_api(char* tag, char *file, int line, const char *function, char *msg, ...) 
-{
-    char buf[1024]; 
-    int n = snprintf(buf, sizeof(buf), "[%s][%s:%d][%s]", tag, file, line, function);
-    va_list argp;    
-    va_start(argp, msg); 
-    int ret = vsnprintf(buf + n, sizeof(buf) - n, msg, argp);  
-    va_end(argp);           
-
-    printf("%s\n", buf);
-}
-    
-#define log_err(...) log_api("error", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define log_info(...) log_api("info", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define log_debug(...) log_api("debug", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 
 static char *username = NULL;
 static char *passwd = NULL;
+static zhandle_t *zh;
 
 void watcher(zhandle_t *zzh, int type, int state, const char *path, void *watcherCtx) 
 {
@@ -87,7 +72,17 @@ void test_unsafe_create_and_get()
         goto clean;
     } 
 
-    log_info("Get node '%s' succ. ctime: %s. Value: [%s]", test_root_node, localtime((time_t*)&(stat.ctime)), buffer);
+    log_info("Get node '%s' succ. ctime: %s. mtime: %s. Value: [%s]", 
+            test_root_node, 
+            ctime((time_t*)&(stat.ctime)), 
+            ctime((time_t*)&(stat.mtime)), 
+            buffer
+            );
+
+    if (strncmp(buffer, test_node_value, buflen) != 0) {
+        log_err("Get node value != value created!");
+        goto clean;
+    }
 
     // test Ephemeral node
     char *test_eph_node_path = "/test/ephemeral";
