@@ -17,26 +17,26 @@ std::string EVENT[] = {
 
 void global_watcher(zhandle_t *zh, int type, int state, const char *path, void *watcherCtx) 
 {
-	log_info("state: %d, path: %s, type: %s", state, (char*)path, EVENT[type + 2].c_str());
+	log_info("state: %d, path: %s, type:%d[%s]", state, (char*)path, type, EVENT[type + 1].c_str());
 }
 
 void watcher_root_cb(zhandle_t* zh, int type, int state, const char* path, void *watchCtx)
 {
-    log_info("test root notified by: type:%s state:%d path:%s",  EVENT[type + 2].c_str(), state, (char*)path);
+    log_info("test root notified by: type:%d[%s] state:%d path:%s", type, EVENT[type + 1].c_str(), state, (char*)path);
 
     watcher_notified = 1;
 }
 
 void watcher_child_cb(zhandle_t* zh, int type, int state, const char* path, void *watchCtx)
 {
-    log_info("watcher child notified by: type:%s state:%d path:%s", EVENT[type + 2].c_str(), state, (char*)path);
+    log_info("watcher child notified by: type:%d[%s] state:%d path:%s", type, EVENT[type + 1].c_str(), state, (char*)path);
 
     watcher_notified = 1;
 }
 
 void watcher_root_exist_cb(zhandle_t* zh, int type, int state, const char* path, void *watchCtx)
 {
-    log_info("root exists notified by: type:%s state:%d path:%s", EVENT[type + 2].c_str(), state, (char*)path);
+    log_info("root exists notified by: type:%d[%s] state:%d path:%s", type, EVENT[type + 1].c_str(), state, (char*)path);
 
     watcher_notified = 1;
 }
