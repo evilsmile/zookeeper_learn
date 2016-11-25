@@ -9,7 +9,7 @@ class ZkWrapper {
 public:
     ZkWrapper(){}
     ~ZkWrapper();
-    int Init(const std::string& server, watcher_fn watcher_cb, ZooLogLevel log_level = ZOO_LOG_LEVEL_ERROR);
+    int Init(const std::string& server, watcher_fn watcher_cb, const std::string& scheme, const std::string& username, const std::string& passwd, ZooLogLevel log_level = ZOO_LOG_LEVEL_ERROR);
 
     int Exists(const std::string& path, int watch_flag);
     int ExistsW(const std::string& path, watcher_fn watcher_cb, void *watcher_ctx);
@@ -29,14 +29,16 @@ public:
     std::string GetErrstr() const;
 
     int RemoveNode(const std::string& path);
-    int Auth(const std::string& username, const std::string& passwd);
+    int Auth(const std::string& scheme, const std::string& cert);
 
 private:
     int _create_node(const std::string& path, const std::string& value, int node_type);
 
     zhandle_t *_zh;
+    std::string _scheme;
     std::string _username;
     std::string _passwd;
+    std::string _passwd_enc;
     std::string _server;
     std::string _errstr;
 

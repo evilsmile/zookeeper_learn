@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-g -Wall
+CFLAGS=-g -Wall -std=c++0x
 
 SRCS=$(shell ls *.cpp)
 OBJS=$(patsubst %.cpp,%.o,$(SRCS))

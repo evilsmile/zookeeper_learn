@@ -24,13 +24,13 @@ void test_unsafe_create_and_get()
 {
     log_info("--------------- [ TEST unsafe functions ] -------------------");
 
-    std::string root_node = "/test";
+    std::string root_node = "/test2";
     do {
         // Create root node
         std::string value = "test value";
 
         if (zk_wrapper.CreateNode(root_node, value) < 0) {
-            log_err("'%s' create failed: %s", root_node.c_str(), zk_wrapper.GetErrstr().c_str());
+            log_err("'%s' create failed: [%s]", root_node.c_str(), zk_wrapper.GetErrstr().c_str());
         } else {
             log_info("create node [%s] succ.", root_node.c_str());
         }
@@ -38,7 +38,7 @@ void test_unsafe_create_and_get()
         // Get root node value
         std::string get_value = zk_wrapper.GetValue(root_node, DISABLE_WATCHER);
         if (get_value.empty()) {
-            log_err("Get node '%s' failed: %s", 
+            log_err("Get node '%s' failed: [%s]", 
                     root_node.c_str(),
                     zk_wrapper.GetErrstr().c_str()
                    );
@@ -54,9 +54,9 @@ void test_unsafe_create_and_get()
         }
 
         // test Ephemeral node
-        std::string ephemeral_node = "/test/ephemeral";
+        std::string ephemeral_node = "/test2/ephemeral";
         if (zk_wrapper.CreateEphemeralNode(ephemeral_node , "Ephemeral value") < 0) {
-            log_err("create ephemeral node failed: %s", zk_wrapper.GetErrstr().c_str() );
+            log_err("create ephemeral node failed: [%s]", zk_wrapper.GetErrstr().c_str() );
             break;
         } else { 
             log_info("ephemeral node create succ");
@@ -64,14 +64,14 @@ void test_unsafe_create_and_get()
 
         value = zk_wrapper.GetValue(ephemeral_node, DISABLE_WATCHER);
         if (value.empty()) {
-            log_err("Get ephemeral node '%s' failed: %s", ephemeral_node.c_str(), zk_wrapper.GetErrstr().c_str());
+            log_err("Get ephemeral node '%s' failed: [%s]", ephemeral_node.c_str(), zk_wrapper.GetErrstr().c_str());
             break;
         } 
 
         // test Sequence node
-        std::string test_seq_node_path = "/test/seq_";
+        std::string test_seq_node_path = "/test2/seq_";
         if (zk_wrapper.CreateSequenceNode(test_seq_node_path, "seq value") < 0) {
-            log_err("sequence node '%s' create failed: %s", test_seq_node_path.c_str(), zk_wrapper.GetErrstr().c_str());
+            log_err("sequence node '%s' create failed: [%s]", test_seq_node_path.c_str(), zk_wrapper.GetErrstr().c_str());
             break;
         }
 
@@ -79,7 +79,7 @@ void test_unsafe_create_and_get()
 
     } while(0);
 
-    zk_wrapper.RemoveNode(root_node);
+//    zk_wrapper.RemoveNode(root_node);
 }
 
 void check_watcher(const std::string& header)
@@ -98,7 +98,7 @@ void test_watcher()
 {
     log_info("------------------- [ test watcher functions ] -------------------");
 
-    std::string watcher_root = "/test_watcher";
+    std::string watcher_root = "/test_watcher2";
     do {
         int error = zk_wrapper.ExistsW(watcher_root, watcher_root_exist_cb, NULL);
         if (error) {
@@ -119,7 +119,7 @@ void test_watcher()
 
         std::string value = zk_wrapper.GetValueW(watcher_root, watcher_root_cb, NULL);
         if (value.empty()) {
-            log_err("'%s' get failed: %s", watcher_root.c_str(), zk_wrapper.GetErrstr().c_str());
+            log_err("'%s' get failed: [%s]", watcher_root.c_str(), zk_wrapper.GetErrstr().c_str());
             break;
         } else {
             log_info("'%s' get succ", watcher_root.c_str());
@@ -136,19 +136,19 @@ void test_watcher()
         std::vector<std::string> children;
         error = zk_wrapper.GetChildrenW(watcher_root, watcher_child_cb, NULL, children);
         if (error) {
-            log_err("get children of '%s' failed: %s", watcher_root.c_str(), zk_wrapper.GetErrstr().c_str());
+            log_err("get children of '%s' failed: [%s]", watcher_root.c_str(), zk_wrapper.GetErrstr().c_str());
             break;
         }
 
         args.cmd = CREATE_NODE;
         args.zw = &zk_wrapper;
-        args.path = "/test_watcher/watcher_child1";
+        args.path = "/test_watcher2/watcher_child1";
         args.value = "watcher child 1";
         request_theother(&args);
         check_watcher("child of root");
     } while(0);
  
-    zk_wrapper.RemoveNode(watcher_root);
+//    zk_wrapper.RemoveNode(watcher_root);
 }
 
 void lets_test()
@@ -160,9 +160,27 @@ void lets_test()
 
 int main(int argc, char *argv[])
 {
-    if (zk_wrapper.Init("192.168.0.40:2181", global_watcher) < 0) {
+#define TEST_AUTH 1
+#if TEST_AUTH
+    std::string scheme = "digest";
+    std::string username = "sss";
+    std::string passwd = "2ss";
+#else
+    std::string scheme;
+    std::string username;
+    std::string passwd;
+#endif
+
+    if (zk_wrapper.Init("192.168.0.40:2181,192.168.0.40:2182,192.168.0.40:2183", global_watcher, scheme, username, passwd) < 0) {
         log_err("zk init failed.");
         return -1;
+    }
+
+    std::string cert = username + ":" + passwd;
+    if (zk_wrapper.Auth(scheme, cert) < 0) {
+        log_err("auth failed! [%s]", zk_wrapper.GetErrstr().c_str());
+    } else {
+        log_err("auth OK!");
     }
 
     lets_test();
