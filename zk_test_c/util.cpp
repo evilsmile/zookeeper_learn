@@ -197,8 +197,6 @@ std::string base64_encode(const std::string& strData)
     result.resize(nContentOutputLen);
     result.assign(pContent, nContentOutputLen);
 
-//    free(pContent);
-
     return result;
 }
 
