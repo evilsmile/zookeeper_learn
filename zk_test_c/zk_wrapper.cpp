@@ -1,6 +1,8 @@
 #include <cstring>
 
 #include "zk_wrapper.h"
+#include "util.h"
+#include "logger.h"
 
 ZkWrapper::~ZkWrapper()
 {
@@ -18,9 +20,8 @@ int ZkWrapper::Init(const std::string& server, watcher_fn watcher_cb, const std:
     _scheme = scheme;
     _username = username;
     _passwd = passwd;
-    //这个用linux系统命令算出来的不对(sha1sum + openssl)，从zookeeper找的验证部分的源码
-    //写的JAVA小工具算出来的，是可以用的
-    _passwd_enc = "tWhEoYfyxTPkt9PJRVQ57vKPdcU=";    // Base64(Sha1sum('2ss'))
+
+    _passwd_enc = util::base64_encode(util::sha1sum(username + ":" + passwd));    // Base64(Sha1sum('username:passwd'))
 
     _zh = zookeeper_init(_server.c_str(), _watcher_cb, 100000, 0, 0, 0);
     if (!_zh) {
