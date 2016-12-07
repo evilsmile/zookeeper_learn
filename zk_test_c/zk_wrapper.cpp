@@ -22,10 +22,14 @@ int ZkWrapper::Init(const std::string& server, watcher_fn watcher_cb, const std:
     _passwd = passwd;
 
     _passwd_enc = util::base64_encode(util::sha1sum(username + ":" + passwd));    // Base64(Sha1sum('username:passwd'))
+    if (_passwd_enc.empty()) {
+        log_err("encode password failed.");
+        return -1;
+    }
 
     _zh = zookeeper_init(_server.c_str(), _watcher_cb, 100000, 0, 0, 0);
     if (!_zh) {
-        return -1;
+        return -2;
     }
 
     return 0;
